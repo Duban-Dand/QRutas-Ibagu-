@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Q'Ruta Ibagué</title>
+    <link rel="stylesheet" href="app.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <figure class="logo-container">
+                <img src="QRutaIbague.png" alt="Logo Q'Ruta Ibagué" class="logo">
+                <figcaption class="title-container">
+                    <h1 class="app-title">Q'Ruta Ibagué</h1>
+                    <p class="app-subtitle">Sistema de Transporte Público</p>
+                </figcaption>
+            </figure>
+            
+            <!-- User Section -->
+            <div class="user-section">
+                <button class="user-btn" id="user-menu-btn">
+                    <i class="fas fa-user"></i>
+                    <span id="user-name">Mi Cuenta</span>
+                </button>
+                <div class="user-menu" id="user-menu">
+                    <div class="user-info">
+                        <h4 id="menu-user-name">Usuario</h4>
+                        <p id="menu-user-email">Inicia sesión</p>
+                    </div>
+                    <div class="user-menu-actions">
+                        <button class="menu-btn" id="login-btn">
+                            <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+                        </button>
+                        <button class="menu-btn" id="favorites-btn" style="display: none;">
+                            <i class="fas fa-star"></i> Mis Rutas Favoritas
+                        </button>
+                        <button class="menu-btn" id="history-btn" style="display: none;">
+                            <i class="fas fa-history"></i> Historial de Búsquedas
+                        </button>
+                        <button class="menu-btn" id="logout-btn" style="display: none;">
+                            <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="nav-tabs">
+            <button class="nav-tab active" data-tab="home">
+                <i class="fas fa-home"></i> Inicio
+            </button>
+            <button class="nav-tab" data-tab="search">
+                <i class="fas fa-search"></i> Buscar
+            </button>
+            <button class="nav-tab" data-tab="map">
+                <i class="fas fa-map"></i> Mapa
+            </button>
+            <button class="nav-tab" data-tab="frequent">
+                <i class="fas fa-star"></i> Frecuentes
+            </button>
+            <button class="nav-tab" data-tab="info">
+                <i class="fas fa-info-circle"></i> Info
+            </button>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="screens-container">
+            <!-- Home Screen -->
+            <section id="home" class="screen active">
+                <h2 class="screen-title"><i class="fas fa-home"></i> Inicio</h2>
+                
+                <!-- User Welcome -->
+                <div class="user-welcome" id="user-welcome" style="display: none;">
+                    <div class="welcome-card">
+                        <h3>¡Bienvenido, <span id="welcome-user-name">Usuario</span>!</h3>
+                        <p>Tienes <span id="favorite-count">0</span> rutas favoritas</p>
+                    </div>
+                </div>
+                
+                <nav class="button-grid">
+                    <article class="main-button" data-action="search">
+                        <figure class="button-icon" style="background-color: #3366FF;">
+                            <i class="fas fa-search"></i>
+                        </figure>
+                        <section class="button-content">
+                            <h3 class="button-title">Buscar Ruta</h3>
+                            <p class="button-desc">Encuentra rutas por dirección o punto de interés</p>
+                        </section>
+                    </article>
+
+                    <article class="main-button" data-action="map">
+                        <figure class="button-icon" style="background-color: #33CC66;">
+                            <i class="fas fa-map-marked-alt"></i>
+                        </figure>
+                        <section class="button-content">
+                            <h3 class="button-title">Mapa General</h3>
+                            <p class="button-desc">Ver todas las rutas de transporte en Ibagué</p>
+                        </section>
+                    </article>
+
+                    <article class="main-button" data-action="frequent">
+                        <figure class="button-icon" style="background-color: #FF9933;">
+                            <i class="fas fa-route"></i>
+                        </figure>
+                        <section class="button-content">
+                            <h3 class="button-title">Rutas Frecuentes</h3>
+                            <p class="button-desc">Rutas más utilizadas en la ciudad</p>
+                        </section>
+                    </article>
+
+                    <article class="main-button" data-action="user-favorites" id="user-favorites-btn" style="display: none;">
+                        <figure class="button-icon" style="background-color: #FF66CC;">
+                            <i class="fas fa-heart"></i>
+                        </figure>
+                        <section class="button-content">
+                            <h3 class="button-title">Mis Favoritas</h3>
+                            <p class="button-desc">Tus rutas guardadas</p>
+                        </section>
+                    </article>
+
+                    <article class="main-button" data-action="info">
+                        <figure class="button-icon" style="background-color: #666666;">
+                            <i class="fas fa-info"></i>
+                        </figure>
+                        <section class="button-content">
+                            <h3 class="button-title">Información</h3>
+                            <p class="button-desc">Acerca de la aplicación y contacto</p>
+                        </section>
+                    </article>
+                </nav>
+            </section>
+
+            <!-- Search Screen -->
+            <section id="search" class="screen">
+                <h2 class="screen-title"><i class="fas fa-search"></i> Buscar Ruta</h2>
+                <article class="search-container">
+                    <section class="input-group">
+                        <label for="origin-input" class="input-label">Origen</label>
+                        <input type="text" class="input-field" placeholder="Ej: Centro Comercial La Estación" id="origin-input">
+                    </section>
+                    <section class="input-group">
+                        <label for="destination-input" class="input-label">Destino</label>
+                        <input type="text" class="input-field" placeholder="Ej: Universidad del Tolima" id="destination-input">
+                    </section>
+                    <button class="action-button" id="search-routes">
+                        <i class="fas fa-search"></i> Buscar Rutas
+                    </button>
+                </article>
+
+                <section class="results-container" id="search-results">
+                    <!-- Los resultados aparecerán aquí -->
+                </section>
+            </section>
+
+            <!-- Map Screen -->
+            <section id="map" class="screen">
+                <h2 class="screen-title"><i class="fas fa-map"></i> Mapa de Rutas</h2>
+                
+                <div class="map-controls">
+                    <button class="map-control-btn active" data-route="all">
+                        <i class="fas fa-layer-group"></i> Todas las Rutas
+                    </button>
+                    <button class="map-control-btn" data-route="1">
+                        <i class="fas fa-bus" style="color: #FF0000;"></i> L1 - Delicias
+                    </button>
+                    <button class="map-control-btn" data-route="2">
+                        <i class="fas fa-bus" style="color: #0000FF;"></i> L1 - Belén
+                    </button>
+                    <button class="map-control-btn" data-route="3">
+                        <i class="fas fa-bus" style="color: #00FF00;"></i> L2 - Cañaveral
+                    </button>
+                    <button class="map-control-btn" data-route="4">
+                        <i class="fas fa-bus" style="color: #FF00FF;"></i> L2 - Clarita Botero
+                    </button>
+                    <button class="map-control-btn" data-route="5">
+                        <i class="fas fa-bus" style="color: #FFA500;"></i> L4 - Arboleda Campestre
+                    </button>
+                    <button class="map-control-btn" data-route="6">
+                        <i class="fas fa-bus" style="color: #800080;"></i> L4 - Boquerón
+                    </button>
+                    <button class="map-control-btn" data-route="7">
+                        <i class="fas fa-bus" style="color: #008080;"></i> L6 - Arboleda Campestre
+                    </button>
+                    <button class="map-control-btn" data-route="8">
+                        <i class="fas fa-bus" style="color: #FF4500;"></i> L6 - Colinas Del Sur
+                    </button>
+                    <button class="map-control-btn" data-route="9">
+                        <i class="fas fa-bus" style="color: #2E8B57;"></i> L8 - La Pola
+                    </button>
+                    <button class="map-control-btn" data-route="10">
+                        <i class="fas fa-bus" style="color: #DC143C;"></i> L8 - Protecho
+                    </button>
+                    <button class="map-control-btn" data-route="11">
+                        <i class="fas fa-bus" style="color: #4B0082;"></i> L9 - Nueva Castilla
+                    </button>
+                    <button class="map-control-btn" data-route="12">
+                        <i class="fas fa-bus" style="color: #FFD700;"></i> L9 - Villa Adriana
+                    </button>
+                    <button class="map-control-btn" data-route="13">
+                        <i class="fas fa-bus" style="color: #00CED1;"></i> L11 - Calle 15
+                    </button>
+                    <button class="map-control-btn" data-route="14">
+                        <i class="fas fa-bus" style="color: #FF69B4;"></i> L11 - La Ceibita
+                    </button>
+                </div>
+                
+                <div class="map-main-container">
+                    <div id="map-container" class="map-real"></div>
+                </div>
+                
+                <article class="map-info-panel">
+                    <div class="info-section">
+                        <h3><i class="fas fa-info-circle"></i> Información del Mapa</h3>
+                        <div class="map-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Rutas Activas:</span>
+                                <span class="stat-value">14</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Paradas Totales:</span>
+                                <span class="stat-value">1,200+</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Buses en Ruta:</span>
+                                <span class="stat-value">42</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="info-section">
+                        <h3><i class="fas fa-legend"></i> Leyenda de Rutas</h3>
+                        <div class="route-legend">
+                            <div class="legend-item">
+                                <span class="legend-color" style="background-color: #FF0000;"></span>
+                                <span>L1 - Delicias</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color" style="background-color: #0000FF;"></span>
+                                <span>L1 - Belén</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color" style="background-color: #00FF00;"></span>
+                                <span>L2 - Cañaveral</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color" style="background-color: #FF00FF;"></span>
+                                <span>L2 - Clarita Botero</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color" style="background-color: #FFA500;"></span>
+                                <span>L4 - Arboleda Campestre</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color" style="background-color: #800080;"></span>
+                                <span>L4 - Boquerón</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color" style="background-color: #008080;"></span>
+                                <span>L6 - Arboleda Campestre</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color" style="background-color: #FF4500;"></span>
+                                <span>L6 - Colinas Del Sur</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color" style="background-color: #2E8B57;"></span>
+                                <span>L8 - La Pola</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color" style="background-color: #DC143C;"></span>
+                                <span>L8 - Protecho</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color" style="background-color: #4B0082;"></span>
+                                <span>L9 - Nueva Castilla</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color" style="background-color: #FFD700;"></span>
+                                <span>L9 - Villa Adriana</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color" style="background-color: #00CED1;"></span>
+                                <span>L11 - Calle 15</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color" style="background-color: #FF69B4;"></span>
+                                <span>L11 - La Ceibita</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-marker">
+                                    <i class="fas fa-map-marker-alt" style="color: #FF6B6B;"></i>
+                                </span>
+                                <span>Paradas Principales</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-marker">
+                                    <i class="fas fa-circle" style="color: #3366FF; font-size: 12px;"></i>
+                                </span>
+                                <span>Buses en Movimiento</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="info-section">
+                        <h3><i class="fas fa-lightbulb"></i> Tips de Uso</h3>
+                        <div class="map-tips">
+                            <ul>
+                                <li>Haz click en las paradas para ver información</li>
+                                <li>Usa los botones para filtrar rutas</li>
+                                <li>Zoom con la rueda del mouse</li>
+                                <li>Arrastra para mover el mapa</li>
+                            </ul>
+                        </div>
+                    </div>
+                </article>
+            </section>
+
+            <!-- Frequent Routes Screen -->
+            <section id="frequent" class="screen">
+                <h2 class="screen-title"><i class="fas fa-star"></i> Rutas Frecuentes</h2>
+                <section class="routes-list" id="frequent-routes">
+                    <!-- Rutas frecuentes se cargarán aquí -->
+                </section>
+            </section>
+
+            <!-- User Favorites Screen -->
+            <section id="user-favorites" class="screen">
+                <h2 class="screen-title"><i class="fas fa-heart"></i> Mis Rutas Favoritas</h2>
+                <section class="routes-list" id="favorites-list">
+                    <!-- Rutas favoritas se cargarán aquí -->
+                </section>
+            </section>
+
+            <!-- Route Details Screen -->
+            <section id="route-details" class="screen">
+                <header class="details-header">
+                    <button class="back-button" id="back-to-routes">
+                        <i class="fas fa-arrow-left"></i> Volver
+                    </button>
+                    <h2 class="screen-title" id="route-details-title">
+                        <i class="fas fa-route"></i> Detalles de Ruta
+                    </h2>
+                    <button class="favorite-btn" id="route-favorite-btn" style="display: none;">
+                        <i class="far fa-heart"></i> Agregar a Favoritos
+                    </button>
+                </header>
+                
+                <article class="route-details-container" id="route-details-content">
+                    <!-- Los detalles de la ruta se cargarán aquí dinámicamente -->
+                </article>
+            </section>
+
+            <!-- Login Screen -->
+            <section id="login" class="screen">
+                <h2 class="screen-title"><i class="fas fa-sign-in-alt"></i> Iniciar Sesión</h2>
+                <article class="login-container">
+                    <div class="input-group">
+                        <label for="login-email" class="input-label">Email</label>
+                        <input type="email" class="input-field" placeholder="tu@email.com" id="login-email">
+                    </div>
+                    <div class="input-group">
+                        <label for="login-password" class="input-label">Contraseña</label>
+                        <input type="password" class="input-field" placeholder="Ingresa tu contraseña" id="login-password">
+                    </div>
+                    <button class="action-button" id="do-login">
+                        <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+                    </button>
+                    <div class="login-demo">
+                        <p><strong>Demo:</strong> Usa cualquier email y contraseña para probar</p>
+                    </div>
+                </article>
+            </section>
+
+            <!-- Info Screen -->
+            <section id="info" class="screen">
+                <h2 class="screen-title"><i class="fas fa-info-circle"></i> Información</h2>
+                <section class="info-container">
+                    <article class="info-card">
+                        <h3><i class="fas fa-mobile-alt"></i> Acerca de Q'Ruta</h3>
+                        <p>Aplicación oficial del sistema de transporte público de Ibagué. Desarrollada para facilitar la movilidad de los ciudadanos.</p>
+                    </article>
+                    <article class="info-card">
+                        <h3><i class="fas fa-phone"></i> Contacto</h3>
+                        <p><strong>Teléfono:</strong> (608) 123-4567</p>
+                        <p><strong>Email:</strong> info@qrutaibague.com</p>
+                    </article>
+                    <article class="info-card">
+                        <h3><i class="fas fa-shield-alt"></i> Privacidad</h3>
+                        <p>Tu privacidad es importante. No recopilamos información personal sin tu consentimiento.</p>
+                    </article>
+                    <article class="info-card">
+                        <h3><i class="fas fa-database"></i> Sistema de Datos</h3>
+                        <p>Conectamos usuarios con rutas mediante sistema de favoritos y historial de búsquedas.</p>
+                    </article>
+                </section>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p>&copy; 2025 Q'Ruta Ibagué - Sistema Integrado Usuario-Rutas</p>
+        </footer>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script src="app.js"></script>
+</body>
+</html>
